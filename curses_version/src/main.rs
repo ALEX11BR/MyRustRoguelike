@@ -141,7 +141,14 @@ fn main() {
 
         match game_window.getch() {
             Some(Input::Character('q')) => {
-                break 'game;
+                game_window.clear();
+                game_window.mvaddstr(0, 0, "Are you sure you want to leave the game?\n");
+                game_window.addstr("Any progress will be lost! [y/N]:");
+                game_window.refresh();
+
+                if let Some(Input::Character('y' | 'Y')) = game_window.getch() {
+                    break 'game;
+                }
             }
             Some(Input::KeyUp | Input::Character('k')) => {
                 context.next_turn(PlayerAction::MoveBy(Point::new(0, -1)));
