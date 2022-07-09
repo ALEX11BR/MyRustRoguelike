@@ -3,15 +3,15 @@ use common::{
     point::Point, tile::Tile, LEVEL_HEIGHT, LEVEL_WIDTH,
 };
 use pancurses::{
-    endwin, init_pair, initscr, newwin, noecho, start_color, Input, COLOR_BLACK, COLOR_CYAN,
-    COLOR_MAGENTA, COLOR_PAIR, COLOR_RED, COLOR_WHITE,
+    chtype, endwin, init_pair, initscr, newwin, noecho, start_color, Input, COLOR_BLACK,
+    COLOR_CYAN, COLOR_MAGENTA, COLOR_PAIR, COLOR_RED, COLOR_WHITE,
 };
 
-const HP_COLOR: u32 = 1;
-const ATTACK_COLOR: u32 = 2;
-const SHIELD_COLOR: u32 = 3;
-const WALL_BACKGROUND: u32 = 4;
-const HP_BACKGROUND: u32 = 5;
+const HP_COLOR: chtype = 1;
+const ATTACK_COLOR: chtype = 2;
+const SHIELD_COLOR: chtype = 3;
+const WALL_BACKGROUND: chtype = 4;
+const HP_BACKGROUND: chtype = 5;
 
 fn main() {
     initscr();
