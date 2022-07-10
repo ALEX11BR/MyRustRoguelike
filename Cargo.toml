@@ -3,4 +3,5 @@
 members = [
     "common",
     "curses_version",
+    "sdl_version"
 ]
