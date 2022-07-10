@@ -9,6 +9,7 @@ pub struct Being {
     pub position: Point,
     pub max_health_points: i32,
     pub health_points: i32,
+    pub experience_points: i32,
     pub max_attack: i32,
     pub max_shield: i32,
     pub kind: BeingKind,
@@ -17,6 +18,7 @@ impl Being {
     pub fn new(
         position: Point,
         hp: i32,
+        experience_points: i32,
         max_attack: i32,
         max_shield: i32,
         kind: BeingKind,
@@ -25,26 +27,31 @@ impl Being {
             position,
             max_health_points: hp,
             health_points: hp,
+            experience_points,
             max_attack,
             max_shield,
             kind,
         }
     }
     pub fn new_of_kind(kind: BeingKind, position: Point) -> Self {
+        let mut rng = thread_rng();
+
         match kind {
-            BeingKind::Player => Being::new(position, 20, 5, 1, kind),
+            BeingKind::Player => Being::new(position, 20, 0, 5, 1, kind),
 
-            BeingKind::Gnoll => Being::new(position, 9, 4, 2, kind),
-            BeingKind::Bat => Being::new(position, 10, 2, 3, kind),
-            BeingKind::AnimatedStatue => Being::new(position, 15, 3, 1, kind),
+            BeingKind::Gnoll => Being::new(position, 9, rng.gen_range(10, 15), 4, 2, kind),
+            BeingKind::Bat => Being::new(position, 10, rng.gen_range(15, 20), 2, 3, kind),
+            BeingKind::AnimatedStatue => {
+                Being::new(position, 15, rng.gen_range(15, 20), 3, 1, kind)
+            }
 
-            BeingKind::Kestrel => Being::new(position, 10, 5, 5, kind),
-            BeingKind::Emu => Being::new(position, 12, 3, 3, kind),
-            BeingKind::LazyImp => Being::new(position, 20, 5, 1, kind),
+            BeingKind::Kestrel => Being::new(position, 10, rng.gen_range(20, 25), 5, 5, kind),
+            BeingKind::Emu => Being::new(position, 12, rng.gen_range(25, 30), 3, 3, kind),
+            BeingKind::LazyImp => Being::new(position, 20, rng.gen_range(25, 30), 5, 1, kind),
 
-            BeingKind::Troll => Being::new(position, 15, 7, 5, kind),
-            BeingKind::Zombie => Being::new(position, 15, 9, 4, kind),
-            BeingKind::StoneSatan => Being::new(position, 30, 15, 5, kind),
+            BeingKind::Troll => Being::new(position, 15, rng.gen_range(30, 35), 7, 5, kind),
+            BeingKind::Zombie => Being::new(position, 15, rng.gen_range(35, 40), 9, 4, kind),
+            BeingKind::StoneSatan => Being::new(position, 30, rng.gen_range(35, 40), 15, 5, kind),
         }
     }
     pub fn new_player() -> Self {

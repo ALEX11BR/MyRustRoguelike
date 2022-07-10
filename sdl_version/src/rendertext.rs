@@ -1,9 +1,15 @@
 use std::error::Error;
 
 use common::point::Point;
-use sdl2::{pixels::Color, ttf::Font, render::{Canvas, TextureCreator, RenderTarget}, video::WindowContext, rect::Rect};
+use sdl2::{
+    pixels::Color,
+    rect::Rect,
+    render::{Canvas, RenderTarget, TextureCreator},
+    ttf::Font,
+    video::WindowContext,
+};
 
-use crate::{TILE_WIDTH, TILE_HEIGHT};
+use crate::{TILE_HEIGHT, TILE_WIDTH};
 
 pub fn render_char<T: RenderTarget>(
     char: char,

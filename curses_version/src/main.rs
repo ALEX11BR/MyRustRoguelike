@@ -4,7 +4,7 @@ use common::{
 };
 use pancurses::{
     chtype, endwin, init_pair, initscr, newwin, noecho, start_color, Input, COLOR_BLACK,
-    COLOR_CYAN, COLOR_MAGENTA, COLOR_PAIR, COLOR_RED, COLOR_WHITE,
+    COLOR_CYAN, COLOR_GREEN, COLOR_MAGENTA, COLOR_PAIR, COLOR_RED, COLOR_WHITE,
 };
 
 const HP_COLOR: chtype = 1;
@@ -12,6 +12,7 @@ const ATTACK_COLOR: chtype = 2;
 const SHIELD_COLOR: chtype = 3;
 const WALL_BACKGROUND: chtype = 4;
 const HP_BACKGROUND: chtype = 5;
+const XP_COLOR: chtype = 6;
 
 fn main() {
     initscr();
@@ -32,6 +33,7 @@ fn main() {
     init_pair(SHIELD_COLOR as i16, COLOR_CYAN, COLOR_BLACK);
     init_pair(WALL_BACKGROUND as i16, COLOR_BLACK, COLOR_WHITE);
     init_pair(HP_BACKGROUND as i16, COLOR_BLACK, COLOR_RED);
+    init_pair(XP_COLOR as i16, COLOR_GREEN, COLOR_BLACK);
 
     let mut context = GameContext::new();
 
@@ -50,6 +52,10 @@ fn main() {
         );
         info_window.attroff(COLOR_PAIR(HP_BACKGROUND));
 
+        info_window.attron(COLOR_PAIR(XP_COLOR));
+        info_window.addstr(format!("XP: {}\n", context.player.experience_points));
+        info_window.attroff(COLOR_PAIR(XP_COLOR));
+
         info_window.attron(COLOR_PAIR(ATTACK_COLOR));
         info_window.addstr(format!("Attack: 0-{}\n", context.player.max_attack));
         info_window.attroff(COLOR_PAIR(ATTACK_COLOR));
@@ -65,9 +71,8 @@ fn main() {
 
         for event in &context.events {
             match event {
-                Event::Died | Event::Won => {
+                Event::Died(_) | Event::Won(_) => {
                     game_window.mvaddstr(0, 0, event.message(context.current_level));
-                    game_window.addstr("Press any key to exit the game");
                     game_window.refresh();
                     info_window.refresh();
 

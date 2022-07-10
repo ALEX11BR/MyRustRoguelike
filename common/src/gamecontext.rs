@@ -72,7 +72,7 @@ impl GameContext {
                 if let Tile::Stairs(1) = self.level.tiles[self.player.position] {
                     self.current_level += 1;
                     if self.current_level > LEVEL_COUNT {
-                        self.events.push(Event::Won);
+                        self.events.push(Event::Won(self.player.experience_points));
                     } else {
                         self.level = Level::generate(self.current_level);
                         self.player.position = self.level.up_stairs;
@@ -101,7 +101,9 @@ impl GameContext {
             if enemy.health_points > 0 {
                 true
             } else {
-                self.events.push(Event::Killed(enemy.kind));
+                self.player.experience_points += enemy.experience_points;
+                self.events
+                    .push(Event::Killed(enemy.kind, enemy.experience_points));
                 false
             }
         });
@@ -183,7 +185,7 @@ impl GameContext {
         }
 
         if self.player.health_points <= 0 {
-            self.events.push(Event::Died);
+            self.events.push(Event::Died(self.player.experience_points));
             return;
         }
 

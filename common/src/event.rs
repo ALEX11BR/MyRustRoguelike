@@ -2,20 +2,20 @@ use crate::{beingkind::BeingKind, pickupitem::PickUpItem, LEVEL_COUNT};
 
 #[derive(Clone, Copy, Debug)]
 pub enum Event {
-    Killed(BeingKind),
-    Attacked(BeingKind, i32),
-    GotAttacked(BeingKind, i32),
+    Killed(BeingKind, i32 /* xp gained */),
+    Attacked(BeingKind, i32 /* damage dealt */),
+    GotAttacked(BeingKind, i32 /*damage dealt */),
     // OnItem = player is on a Item or a downstairs stair.
     // Used to show a message informing the player that they can press enter to descend/pick up.
     OnItem(Option<PickUpItem>),
-    Died,
-    Won,
+    Died(i32 /* xp on death */),
+    Won(i32 /* xp on win */),
 }
 impl Event {
     pub fn message(self, level: i32) -> String {
         match self {
-            Event::Killed(enemy_kind) => {
-                format!("You killed {}.\n", enemy_kind)
+            Event::Killed(enemy_kind, xp) => {
+                format!("You killed {}, gaining {} XP.\n", enemy_kind, xp)
             }
             Event::Attacked(enemy_kind, damage) => {
                 format!("You attacked {}, dealing {} damage.\n", enemy_kind, damage)
@@ -40,8 +40,8 @@ impl Event {
                         .to_string()
                 }
             }
-            Event::Died => "YOU LOST THIS GAME...\n".to_string(),
-            Event::Won => "YOU WON! THE AMULET OF YENDOR IS YOURS!\n".to_string(),
+            Event::Died(xp) => format!("YOU LOST THIS GAME...\nYou died with {} XP.\nPress any key to exit the game...", xp),
+            Event::Won(xp) => format!("YOU WON! THE AMULET OF YENDOR IS YOURS!\nYou won with {} XP.\nPress any key to exit the game...", xp),
         }
     }
 }

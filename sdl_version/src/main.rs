@@ -10,7 +10,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
-use sdl2::render::{BlendMode::Blend};
+use sdl2::render::BlendMode::Blend;
 use sdl2::rwops::RWops;
 
 use crate::appstate::AppState;
@@ -19,7 +19,6 @@ use crate::rendertext::{render_char, render_text};
 mod appstate;
 mod rendertext;
 
-//const FONT_DATA: [u8] = include_bytes!("iosevka-custom-regular.ttf");
 pub const SCREEN_WIDTH: u32 = 1280;
 pub const SCREEN_HEIGHT: u32 = 720;
 pub const TILE_WIDTH: i32 = 15;
@@ -32,20 +31,19 @@ fn main() {
     let sdl_video = sdl_context.video().unwrap();
     let window = sdl_video
         .window("MyRustRoguelike", SCREEN_WIDTH, SCREEN_HEIGHT)
+        .position_centered()
         .build()
         .unwrap();
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     canvas.set_blend_mode(Blend);
     let texture_creator = canvas.texture_creator();
-    
+
     let sdl_ttf = sdl2::ttf::init().unwrap();
     let font_rwops = RWops::from_bytes(include_bytes!("iosevka-custom-regular.ttf")).unwrap();
-    let font = sdl_ttf
-        .load_font_from_rwops(font_rwops, 30)
-        .unwrap();
+    let font = sdl_ttf.load_font_from_rwops(font_rwops, 30).unwrap();
 
     let sdl_controller = sdl_context.game_controller().unwrap();
-    let mut controller0 = sdl_controller.open(0);
+    let mut controller_0 = sdl_controller.open(0).ok();
 
     let mut context = GameContext::new();
     let mut app_state = AppState::InGame;
@@ -65,12 +63,11 @@ fn main() {
 
             canvas.set_draw_color(Color::BLACK);
             canvas.clear();
-            
-            let mut game_window =
-                Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            let mut game_window = Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
             let _ = render_text(
-                &format!("{}\nPress any key to exit the game", event.message(context.current_level)),
+                &event.message(context.current_level),
                 Color::WHITE,
                 &mut game_window,
                 &font,
@@ -173,7 +170,10 @@ fn main() {
         );
 
         let _ = render_text(
-            &format!("Level {}\nTurn {}", context.current_level, context.current_turn),
+            &format!(
+                "Level {}\nTurn {}",
+                context.current_level, context.current_turn
+            ),
             Color::WHITE,
             &mut info_window,
             &font,
@@ -186,6 +186,14 @@ fn main() {
                 context.player.health_points, context.player.max_health_points
             ),
             Color::RED,
+            &mut info_window,
+            &font,
+            &mut canvas,
+            &texture_creator,
+        );
+        let _ = render_text(
+            &format!("XP: {}", context.player.experience_points),
+            Color::GREEN,
             &mut info_window,
             &font,
             &mut canvas,
@@ -211,14 +219,14 @@ fn main() {
         for event in &context.events {
             if let GotAttacked(_, _) | Attacked(_, _) = event {
                 if context_has_changed {
-                    if let Ok(controller) = &mut controller0 {
+                    if let Some(controller) = &mut controller_0 {
                         let _ = controller.set_rumble(0xFFFF, 0x8FFF, 333);
                     }
                 }
             }
             match event {
-                Died | Won => {
-                    if let Ok(controller) = &mut controller0 {
+                Died(_) | Won(_) => {
+                    if let Some(controller) = &mut controller_0 {
                         let _ = controller.set_rumble(0x8FFF, 0xFFFF, 666);
                     }
 
@@ -249,7 +257,11 @@ fn main() {
                     Tile::Wall => (' ', Color::BLACK, Color::WHITE),
                     Tile::Door => ('+', Color::BLACK, Color::WHITE),
                     Tile::Stairs(-1) => ('<', Color::WHITE, Color::BLACK),
-                    Tile::Stairs(1) => ('>', Color::WHITE, Color::BLACK),
+                    Tile::Stairs(1) => (
+                        if context.current_level < 25 { '>' } else { '0' },
+                        Color::WHITE,
+                        Color::BLACK,
+                    ),
                     _ => (' ', Color::WHITE, Color::BLACK),
                 };
                 if context.level.last_seen[(y, x)] < context.current_turn {
