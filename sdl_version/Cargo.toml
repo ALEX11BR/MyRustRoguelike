@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 sdl2 = { version = "0.35.2", features = ["ttf"] }
 common = { path = "../common" }
+
+[features]
+static-link = ["sdl2/static-link", "sdl2/use-pkgconfig"]
