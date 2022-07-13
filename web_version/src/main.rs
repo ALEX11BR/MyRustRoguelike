@@ -3,6 +3,9 @@ use common::gamecontext::GameContext;
 use common::playeraction::PlayerAction;
 use common::point::Point;
 use common::{LEVEL_HEIGHT, LEVEL_WIDTH};
+use gloo_events::{EventListener, EventListenerOptions};
+use gloo_utils::window;
+use wasm_bindgen::JsCast;
 use yew::prelude::*;
 
 use crate::gencell::{gen_cell, gen_empty_cell, gen_enemy_cell, gen_player_cell};
@@ -11,6 +14,8 @@ mod gencell;
 
 struct App {
     game_context: GameContext,
+    end_game_event: Option<Event>,
+    key_listener: Option<EventListener>,
 }
 impl Component for App {
     type Message = PlayerAction;
@@ -19,36 +24,42 @@ impl Component for App {
     fn create(_ctx: &Context<Self>) -> Self {
         Self {
             game_context: GameContext::new(),
+            end_game_event: None,
+            key_listener: None,
         }
     }
 
     fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
         self.game_context.next_turn(msg);
 
+        if let Some(event) = self.game_context.events.iter().find(|event| match event {
+            Event::Died(_) | Event::Won(_) => true,
+            _ => false,
+        }) {
+            self.end_game_event.replace(*event);
+        }
+
         true
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let link = ctx.link();
+        if let Some(event) = self.end_game_event {
+            return html! {
+                <div>
+                    <p>{event.message(self.game_context.current_level)}</p>
+                    <p>{"You can start the game again reloading the page."}</p>
+                </div>
+            };
+        }
 
         let mut events_contents = vec![];
         for event in &self.game_context.events {
-            match event {
-                Event::Died(_) | Event::Won(_) => {
-                    return html! {
-                        <div>
-                            <p>{event.message(self.game_context.current_level)}</p>
-                            <p>{"You can start the game again reloading the page."}</p>
-                        </div>
-                    };
-                }
-                _ => {
-                    events_contents.push(html! {
-                        <li>{event.message(self.game_context.current_level)}</li>
-                    });
-                }
-            }
+            events_contents.push(html! {
+                <li>{event.message(self.game_context.current_level)}</li>
+            });
         }
+
+        let link = ctx.link();
 
         let level_string = format!("Level {}", self.game_context.current_level);
         let turn_string = format!("Turn {}", self.game_context.current_turn);
@@ -135,6 +146,53 @@ impl Component for App {
                     </tr>
                 </table>
             </div>
+        }
+    }
+
+    fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
+        if first_render {
+            let link = ctx.link();
+
+            let select_callback = link.callback(|()| PlayerAction::Select);
+            let skip_turn_callback = link.callback(|()| PlayerAction::MoveBy(Point::new(0, 0)));
+
+            let move_left_callback = link.callback(|()| PlayerAction::MoveBy(Point::new(-1, 0)));
+            let move_down_callback = link.callback(|()| PlayerAction::MoveBy(Point::new(0, 1)));
+            let move_up_callback = link.callback(|()| PlayerAction::MoveBy(Point::new(0, -1)));
+            let move_right_callback = link.callback(|()| PlayerAction::MoveBy(Point::new(1, 0)));
+
+            self.key_listener.replace(EventListener::new_with_options(
+                &window(),
+                "keydown",
+                EventListenerOptions::run_in_capture_phase(),
+                move |event| {
+                    if let Some(event) = event.dyn_ref::<KeyboardEvent>() {
+                        match event.key().as_str() {
+                            "ArrowLeft" | "h" | "H" => {
+                                move_left_callback.emit(());
+                            }
+                            "ArrowDown" | "j" | "J" => {
+                                move_down_callback.emit(());
+                            }
+                            "ArrowUp" | "k" | "K" => {
+                                move_up_callback.emit(());
+                            }
+                            "ArrowRight" | "l" | "L" => {
+                                move_right_callback.emit(());
+                            }
+                            " " => {
+                                skip_turn_callback.emit(());
+                            }
+                            "Enter" => {
+                                select_callback.emit(());
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+            ));
+        } else if let Some(_) = self.end_game_event {
+            self.key_listener.take();
         }
     }
 }
