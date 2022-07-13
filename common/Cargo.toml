@@ -9,3 +9,6 @@ edition = "2021"
 rand = "0.7.3"
 pathfinding = "3.0.13"
 symmetric-shadowcasting = "0.2.0"
+
+[target.wasm32-unknown-unknown.dependencies]
+getrandom = { version = "0.1.16", features = ["wasm-bindgen"] }

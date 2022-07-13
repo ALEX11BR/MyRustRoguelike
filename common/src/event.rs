@@ -40,8 +40,11 @@ impl Event {
                         .to_string()
                 }
             }
-            Event::Died(xp) => format!("YOU LOST THIS GAME...\nYou died with {} XP.\nPress any key to exit the game...", xp),
-            Event::Won(xp) => format!("YOU WON! THE AMULET OF YENDOR IS YOURS!\nYou won with {} XP.\nPress any key to exit the game...", xp),
+            Event::Died(xp) => format!("YOU LOST THIS GAME...\nYou died with {} XP.\n", xp),
+            Event::Won(xp) => format!(
+                "YOU WON! THE AMULET OF YENDOR IS YOURS!\nYou won with {} XP.\n",
+                xp
+            ),
         }
     }
 }

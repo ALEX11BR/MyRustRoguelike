@@ -67,7 +67,11 @@ fn main() {
             let mut game_window = Rect::new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
             let _ = render_text(
-                &event.message(context.current_level),
+                &format!(
+                    "{}{}",
+                    event.message(context.current_level),
+                    "Press any key to exit the game..."
+                ),
                 Color::WHITE,
                 &mut game_window,
                 &font,

@@ -73,6 +73,7 @@ fn main() {
             match event {
                 Event::Died(_) | Event::Won(_) => {
                     game_window.mvaddstr(0, 0, event.message(context.current_level));
+                    game_window.addstr("Press any key to exit the game...");
                     game_window.refresh();
                     info_window.refresh();
 
