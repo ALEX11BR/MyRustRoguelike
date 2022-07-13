@@ -1,4 +1,5 @@
 # MyRustRoguelike
+[**Web version demo**](https://alex11br.github.io/myrustroguelike-web/)
 ![Demo of the game](demo.gif)
 My first attempt at an app in Rust and at a roguelike. A very simple one, though. And it comes in 2 versions: curses and SDL. Granted, they almost look and behave the same.
 
