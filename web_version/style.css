@@ -1,0 +1,86 @@
+body {
+    font-family: monospace, Consolas, 'Source Code Pro', 'Courier New', Monaco;
+    color: white;
+    background-color: black;
+}
+
+#root {
+    display: grid;
+    justify-items: left;
+    grid-gap: 1em;
+    grid-template-areas:
+        "level"
+        "stats"
+        "controls";
+}
+@media only screen and (min-width: 1024px) {
+    #root {
+        grid-template-areas:
+            "level stats"
+            "level controls";
+    }
+}
+
+table {
+    table-layout: fixed;
+    text-align: center;
+}
+
+#level_display {
+    border-spacing: 0px;
+
+    grid-area: level;
+}
+.out_of_fov {
+    opacity: 0.5;
+}
+.door_or_wall {
+    background-color: white;
+    color: black;
+}
+.health_boost {
+    color: red;
+}
+.attack_boost {
+    color: magenta;
+}
+.shield_boost {
+    color: cyan;
+}
+.player {
+    background-color: greenyellow;
+    color: black;
+}
+
+#stats_display {
+    border: 1cm white;
+
+    grid-area: stats;
+}
+
+#controls {
+    width: 100%;
+    
+    grid-area: controls;
+    align-self: end;
+}
+#controls button {
+    height: 3em;
+    width: 100%;
+}
+
+#hp_display {
+    color: red;
+}
+#xp_display {
+    color: lime;
+}
+#attack_display {
+    color: magenta;
+}
+#shield_display {
+    color: cyan;
+}
+#events_display {
+    padding-inline-start: 1em;
+}
