@@ -189,7 +189,7 @@ impl Component for App {
                             _ => {}
                         }
                     }
-                }
+                },
             ));
         } else if let Some(_) = self.end_game_event {
             self.key_listener.take();

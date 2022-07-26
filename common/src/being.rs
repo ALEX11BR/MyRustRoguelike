@@ -77,3 +77,37 @@ impl Being {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn being_new_player() {
+        if let BeingKind::Player = Being::new_player().kind {
+        } else {
+            panic!();
+        }
+    }
+    #[test]
+    fn being_fight() {
+        let mut player = Being::new_player();
+        let mut enemy = Being::new_of_kind(BeingKind::Bat, Point::new(0, 1));
+
+        let damage_dealt = player.fight(&mut enemy);
+
+        assert_eq!(player.health_points, player.max_health_points);
+        assert_eq!(enemy.health_points + damage_dealt, enemy.max_health_points);
+    }
+    #[test]
+    fn being_bump_health() {
+        let mut enemy = Being::new_of_kind(BeingKind::Bat, Point::new(1, 1));
+
+        enemy.bump_health();
+        assert_eq!(enemy.health_points, enemy.max_health_points);
+
+        enemy.health_points = 1;
+        enemy.bump_health();
+        assert_eq!(enemy.health_points, 2);
+    }
+}

@@ -117,3 +117,104 @@ impl<T> IndexMut<Point> for TileArray<T> {
         &mut self[(index.y, index.x)]
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tilearray() {
+        let mut tile_array = TileArray::<Tile>::new(Tile::Wall);
+        tile_array[(2, 1)] = Tile::Room;
+
+        assert_eq!(tile_array[Point::new(1, 2)], Tile::Room);
+        assert_eq!(tile_array[Point::new(2, 1)], Tile::Wall);
+    }
+    #[test]
+    #[should_panic]
+    fn tilearray_panic_1() {
+        let tile_array = TileArray::<Tile>::new(Tile::Wall);
+
+        tile_array[(0, -1)];
+    }
+    #[test]
+    #[should_panic]
+    fn tilearray_panic_2() {
+        let tile_array = TileArray::<Tile>::new(Tile::Wall);
+
+        tile_array[(LEVEL_HEIGHT, 0)];
+    }
+    #[test]
+    fn tilearray_carve_room() {
+        let mut tile_array = TileArray::<Tile>::new(Tile::Wall);
+        let room = Room::new(8, 9, 8, 6);
+        tile_array.carve_room(room);
+
+        assert_eq!(tile_array[room.top_left], Tile::Wall);
+        assert_eq!(tile_array[room.bottom_right], Tile::Wall);
+
+        assert_eq!(tile_array[(10, 10)], Tile::Room);
+    }
+    #[test]
+    fn tilearray_carve_h_corridor() {
+        let mut tile_array = TileArray::<Tile>::new(Tile::Wall);
+        tile_array.carve_h_corridor(7, 2, 20);
+
+        assert_eq!(tile_array[(7, 2)], Tile::Room);
+        assert_eq!(tile_array[(7, 12)], Tile::Room);
+        assert_eq!(tile_array[(7, 20)], Tile::Room);
+
+        assert_eq!(tile_array[(7, 1)], Tile::Wall);
+        assert_eq!(tile_array[(7, 21)], Tile::Wall);
+        assert_eq!(tile_array[(9, 12)], Tile::Wall);
+    }
+    #[test]
+    fn tilearray_carve_v_corridor() {
+        let mut tile_array = TileArray::<Tile>::new(Tile::Wall);
+        tile_array.carve_v_corridor(7, 2, 20);
+
+        assert_eq!(tile_array[(2, 7)], Tile::Room);
+        assert_eq!(tile_array[(12, 7)], Tile::Room);
+        assert_eq!(tile_array[(20, 7)], Tile::Room);
+
+        assert_eq!(tile_array[(1, 7)], Tile::Wall);
+        assert_eq!(tile_array[(21, 7)], Tile::Wall);
+        assert_eq!(tile_array[(9, 8)], Tile::Wall);
+    }
+    #[test]
+    fn tilearray_is_pillar_worthy() {
+        let mut tile_array = TileArray::<Tile>::new(Tile::Wall);
+        let room = Room::new(8, 9, 8, 6);
+        tile_array.carve_room(room);
+
+        assert!(tile_array.is_pillar_worthy(Point::new(10, 11)));
+
+        assert!(!tile_array.is_pillar_worthy(Point::new(9, 11)));
+        assert!(!tile_array.is_pillar_worthy(Point::new(20, 12)));
+    }
+    #[test]
+    fn tilearray_is_door_worthy() {
+        let mut tile_array = TileArray::<Tile>::new(Tile::Wall);
+        tile_array[(2, 1)] = Tile::Room;
+        tile_array[(2, 3)] = Tile::Room;
+        tile_array[(3, 3)] = Tile::Room;
+        tile_array[(4, 3)] = Tile::Room;
+
+        assert!(tile_array.is_door_worthy(Point::new(2, 2)));
+        assert!(tile_array.is_door_worthy(Point::new(3, 3)));
+
+        assert!(!tile_array.is_door_worthy(Point::new(1, 2)));
+        assert!(!tile_array.is_door_worthy(Point::new(3, 2)));
+        assert!(!tile_array.is_door_worthy(Point::new(3, 4)));
+        assert!(!tile_array.is_door_worthy(Point::new(4, 4)));
+    }
+    #[test]
+    fn tilearray_generate_floor_point() {
+        for _ in 0..100 {
+            let mut tile_array = TileArray::<Tile>::new(Tile::Wall);
+            tile_array.carve_room(Room::generate());
+
+            assert_eq!(tile_array[tile_array.generate_floor_point()], Tile::Room);
+        }
+    }
+}
