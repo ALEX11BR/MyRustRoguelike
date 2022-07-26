@@ -14,16 +14,31 @@ const WALL_BACKGROUND: chtype = 4;
 const HP_BACKGROUND: chtype = 5;
 const XP_COLOR: chtype = 6;
 
+struct CursesRAII;
+impl CursesRAII {
+    fn init() -> Self {
+        initscr();
+        noecho();
+        start_color();
+
+        CursesRAII
+    }
+}
+impl Drop for CursesRAII {
+    fn drop(&mut self) {
+        endwin();
+    }
+}
+
 fn main() {
-    initscr();
+    let _curses_raii = CursesRAII::init();
+
     let game_window = newwin(LEVEL_HEIGHT, LEVEL_WIDTH, 0, 0);
     let info_frame = newwin(LEVEL_HEIGHT, 0, 0, LEVEL_WIDTH);
     let info_window = info_frame
         .derwin(LEVEL_HEIGHT - 2, info_frame.get_max_x() - 2, 1, 1)
         .unwrap();
 
-    noecho();
-    start_color();
     game_window.keypad(true);
     info_frame.draw_box(0, 0);
     info_frame.refresh();
@@ -177,5 +192,4 @@ fn main() {
             _ => {}
         }
     }
-    endwin();
 }
