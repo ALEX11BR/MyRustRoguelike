@@ -7,7 +7,7 @@ use rand::random;
 
 use crate::{point::Point, room::Room, tile::Tile, LEVEL_HEIGHT, LEVEL_WIDTH};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TileArray<T> {
     array: Vec<T>,
 }

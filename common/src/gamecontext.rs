@@ -9,6 +9,7 @@ use crate::{
 
 #[derive(Debug)]
 pub struct GameContext {
+    levels: Vec<Option<Level>>,
     pub level: Level,
     pub current_level: i32,
     pub current_turn: u32,
@@ -18,6 +19,7 @@ pub struct GameContext {
 impl GameContext {
     pub fn new() -> Self {
         let mut context = GameContext {
+            levels: vec![None; LEVEL_COUNT as usize],
             level: Level::generate(1),
             current_level: 1,
             current_turn: 1,
@@ -69,17 +71,31 @@ impl GameContext {
                 }
             }
             PlayerAction::Select => {
-                if let Tile::Stairs(1) = self.level.tiles[self.player.position] {
-                    self.current_level += 1;
-                    if self.current_level > LEVEL_COUNT {
-                        self.events.push(Event::Won(self.player.experience_points));
-                    } else {
-                        self.level = Level::generate(self.current_level);
-                        self.player.position = self.level.up_stairs;
-                        self.update_fov();
-                    }
+                if let Tile::Stairs(progression) = self.level.tiles[self.player.position] {
+                    if self.current_level + progression > 0 {
+                        self.current_level += progression;
 
-                    return;
+                        if self.current_level > LEVEL_COUNT {
+                            self.events.push(Event::Won(self.player.experience_points));
+                            self.current_level += progression;
+                            return;
+                        } else {
+                            self.levels[(self.current_level - progression - 1) as usize] =
+                                Some(self.level.clone());
+
+                            self.level = self.levels[(self.current_level - 1) as usize]
+                                .clone()
+                                .unwrap_or_else(|| Level::generate(self.current_level));
+                            self.player.position = if progression > 0 {
+                                self.level.up_stairs
+                            } else {
+                                self.level.down_stairs
+                            };
+                            self.update_fov();
+                        }
+
+                        return;
+                    }
                 } else if let Tile::Item(item) = self.level.tiles[self.player.position] {
                     match item {
                         PickUpItem::HealthBoost => {

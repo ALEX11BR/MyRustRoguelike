@@ -11,7 +11,7 @@ use crate::room::Room;
 use crate::tile::Tile;
 use crate::tilearray::TileArray;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Level {
     pub tiles: TileArray<Tile>,
     pub last_seen: TileArray<u32>,
