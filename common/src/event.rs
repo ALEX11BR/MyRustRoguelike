@@ -8,6 +8,7 @@ pub enum Event {
     // OnItem = player is on a Item or a downstairs stair.
     // Used to show a message informing the player that they can press enter to descend/pick up.
     OnItem(Option<PickUpItem>),
+    OnUpstairs,
     Died(i32 /* xp on death */),
     Won(i32 /* xp on win */),
 }
@@ -32,13 +33,19 @@ impl Event {
             Event::OnItem(None) => {
                 if level < LEVEL_COUNT {
                     format!(
-                        "Press Enter to descend to level {}. You can't go back.\n",
+                        "Press Enter to descend to level {}. You can go back later on.\n",
                         level + 1
                     )
                 } else {
                     "Press enter to retrieve the Amulet of Yendor, thus winning the game\n"
                         .to_string()
                 }
+            }
+            Event::OnUpstairs => {
+                format!(
+                    "Press Enter to ascend to level {}.\n",
+                    level - 1
+                )
             }
             Event::Died(xp) => format!("YOU LOST THIS GAME...\nYou died with {} XP.\n", xp),
             Event::Won(xp) => format!(

@@ -212,6 +212,11 @@ impl GameContext {
             Tile::Stairs(1) => {
                 self.events.push(Event::OnItem(None));
             }
+            Tile::Stairs(-1) => {
+                if self.current_level > 1 {
+                    self.events.push(Event::OnUpstairs);
+                }
+            }
             _ => {}
         }
 
